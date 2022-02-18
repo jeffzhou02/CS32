@@ -21,7 +21,9 @@ public:
   virtual int move();
   virtual void cleanUp();
   void loadLevel();
-    bool overlap(int x, int y);
+    bool Overlap(int x, int y, char direction);
+
+
 private:
     std::vector <Actor*> characters;
     Peach* m_player;

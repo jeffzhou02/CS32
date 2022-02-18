@@ -17,6 +17,7 @@ GameWorld* createStudentWorld(string assetPath)
 StudentWorld::StudentWorld(string assetPath)
 : GameWorld(assetPath)
 {
+    std::vector<Actor*> characters;
 }
 
 int StudentWorld::init()
@@ -71,7 +72,7 @@ int StudentWorld::init()
                         break;
                     }
                     case Level::flower_goodie_block:{
-                        
+                        characters.push_back(new Block(x * SPRITE_WIDTH,y * SPRITE_HEIGHT,this,false));
                         break;
                     }
                     case Level::pipe:{
@@ -121,20 +122,53 @@ void StudentWorld::cleanUp()
     }
 }
 
-bool StudentWorld::overlap(int x,int y){
+bool StudentWorld::Overlap(int x,int y, char direction){
     vector<Actor*>::iterator it;
     it = characters.begin();
-    while(it != characters.end()){
-        if (x == (*it)->getX() + SPRITE_WIDTH -1 && y == (*it)->getY() + SPRITE_HEIGHT - 1){
-            return true;
+    switch(direction){
+        case 'l':
+        case 'r':{
+            while(it != characters.end()){
+                if (x <= (*it)->getX() + SPRITE_WIDTH -1 && x >= (*it)->getX() - 1 &&  y <= (*it)->getY() + SPRITE_HEIGHT - 1 &&  y >= (*it)->getY()){
+                    return true;
+                }
+                if (x <= (*it)->getX() - 1 && x >= (*it)->getX() +SPRITE_WIDTH - 1 && y <= (*it)->getY() + SPRITE_HEIGHT -1 && y >= (*it)->getY()) {
+                    return true;
+                }
+                it++;
+            }
+            break;
         }
-        if (x == (*it)->getX() - 1 && y == (*it)->getY() + SPRITE_HEIGHT -1) {
-            return true;
+        case 'd': {
+            while(it != characters.end()){
+                if ((x <=(*it)->getX() + SPRITE_WIDTH - 1 && x >= (*it)->getX() ) && y == (*it)->getY() + SPRITE_HEIGHT - 1){
+                    return true;
+                }
+                it++;
+            }
+            break;
         }
-        it++;
+        case 'u': {
+            while(it != characters.end()){
+                if ((x <=(*it)->getX() + SPRITE_WIDTH - 1 && x >= (*it)->getX() + 1) &&  y == (*it)->getY() + SPRITE_HEIGHT - 1 ){
+                    return true;
+                }
+                it++;
+            }
+            break;
+        }
     }
+    
+
     return false;
 }
+
+
+
+
+
+
+
 
 
 

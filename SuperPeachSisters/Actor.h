@@ -12,6 +12,7 @@ public:
    virtual ~Actor();
     virtual void doSomething() = 0;
     virtual void damage() = 0;
+    virtual void bonk() = 0;
     StudentWorld* getWorld(){return m_world;};
     void setStatus(bool status){m_status = status;}
     bool getStatus() const{return m_status;}
@@ -26,6 +27,7 @@ public:
     Block(int x, int y, StudentWorld* world, bool hasGoodie);
     virtual ~Block();
     virtual void doSomething(){return;}
+    virtual void bonk(){return;}
     //virtual bool isDamagable();
     void damage(){return;}
 private:
@@ -37,9 +39,11 @@ public:
     Peach(int x, int y, StudentWorld* world);
     virtual ~Peach();
     virtual void doSomething();
+    virtual void bonk(){return;}
     void damage(){return;}
 private:
     int hitPoints;
+    int jumpDistance;
 };
 
 
