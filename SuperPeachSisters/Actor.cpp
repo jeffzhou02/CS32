@@ -18,9 +18,13 @@ Block::Block(int x, int y, StudentWorld* world, bool goodie): Actor(x, y, IID_BL
     hasGoodie = goodie;
 }
 
-Block::~Block(){
-    
-}
+Block::~Block(){}
+
+Pipe::Pipe(int x, int y, StudentWorld* world): Actor(x, y, IID_PIPE, world, true,0,2,1){}
+
+Pipe::~Pipe(){}
+
+
 
 Peach::Peach(int x, int y, StudentWorld* world): Actor(x, y, IID_PEACH, world, true,0,0,1){
     
@@ -50,19 +54,19 @@ void Peach::doSomething(){
         int curY = getY();
         if (ch == KEY_PRESS_LEFT){
             setDirection(180);
-            if(getWorld()->Overlap(this->getX() - 1, this->getY() + SPRITE_HEIGHT - 1,'l') == false){
+            if(getWorld()->Overlap(this->getX(), this->getY() + SPRITE_HEIGHT/2,'l') == false){
                 this->moveTo(curX-4, curY);
             }
         }
         if (ch == KEY_PRESS_RIGHT){
             setDirection(0);
-            if(getWorld()->Overlap(this->getX() + SPRITE_WIDTH, this->getY() + SPRITE_HEIGHT - 1,'r') == false){
+            if(getWorld()->Overlap(this->getX() + SPRITE_WIDTH, this->getY() + SPRITE_HEIGHT/2,'r') == false){
                 this->moveTo(curX+4, curY);
             }
         }
         if (ch == KEY_PRESS_UP){
-            if (getWorld()->Overlap(getX(), getY() - 1,'d') == true || getWorld()-> Overlap(getX() + SPRITE_WIDTH -1, getY() - 1,'d') == true){
-                getWorld()->playSound(SOUND_PLAYER_JUMP);
+            if (getWorld()->Overlap(getX(), getY() - 1,'d') == true || getWorld()-> Overlap(getX() + SPRITE_WIDTH - 1, getY() - 1,'d') == true){
+                //getWorld()->playSound(SOUND_PLAYER_JUMP);
                 jumpDistance = 8;
             }
         }
@@ -78,4 +82,22 @@ void Peach::doSomething(){
 
 Peach::~Peach(){}
 
+
+
+Goomba::Goomba(int x, int y, StudentWorld *world, int startDirection): Actor(x, y, IID_GOOMBA, world, true,startDirection,0,1){}
+
+
+void Goomba::doSomething(){
+    if(getStatus() == false){
+        return;
+    }
+    if (getDirection() == 180){
+        
+    }
+    if (getDirection() == 0){
+        
+    }
+}
+
+Goomba::~Goomba(){}
 

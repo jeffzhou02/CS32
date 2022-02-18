@@ -47,7 +47,10 @@ int StudentWorld::init()
                         break;
                     }
                     case Level::goomba:{
-                        cout << "Location 5,10 starts with a goomba" << endl;
+                        int random = rand() % 1;
+                        if (random == 1){random = 180;}
+                        characters.push_back(new Goomba(x * SPRITE_WIDTH,y * SPRITE_HEIGHT,this,random));
+
                         break;
                     }
                     case Level::peach:{
@@ -76,7 +79,7 @@ int StudentWorld::init()
                         break;
                     }
                     case Level::pipe:{
-                        
+                        characters.push_back(new Pipe(x * SPRITE_WIDTH,y * SPRITE_HEIGHT,this));
                         break;
                     }
                     case Level::mario:{
@@ -120,6 +123,7 @@ void StudentWorld::cleanUp()
         it = characters.erase(it);
         delete temp;
     }
+    delete m_player;
 }
 
 bool StudentWorld::Overlap(int x,int y, char direction){
@@ -129,10 +133,10 @@ bool StudentWorld::Overlap(int x,int y, char direction){
         case 'l':
         case 'r':{
             while(it != characters.end()){
-                if (x <= (*it)->getX() + SPRITE_WIDTH -1 && x >= (*it)->getX() - 1 &&  y <= (*it)->getY() + SPRITE_HEIGHT - 1 &&  y >= (*it)->getY()){
+                if (x <= (*it)->getX() + SPRITE_WIDTH && x >= (*it)->getX() &&  y <= (*it)->getY() + SPRITE_HEIGHT  &&  y >= (*it)->getY()){
                     return true;
                 }
-                if (x <= (*it)->getX() - 1 && x >= (*it)->getX() +SPRITE_WIDTH - 1 && y <= (*it)->getY() + SPRITE_HEIGHT -1 && y >= (*it)->getY()) {
+                if (x <= (*it)->getX() && x >= (*it)->getX() +SPRITE_WIDTH  && y <= (*it)->getY() + SPRITE_HEIGHT  && y >= (*it)->getY()) {
                     return true;
                 }
                 it++;
@@ -141,7 +145,7 @@ bool StudentWorld::Overlap(int x,int y, char direction){
         }
         case 'd': {
             while(it != characters.end()){
-                if ((x <=(*it)->getX() + SPRITE_WIDTH - 1 && x >= (*it)->getX() ) && y == (*it)->getY() + SPRITE_HEIGHT - 1){
+                if ((x <=(*it)->getX() + SPRITE_WIDTH - 1 && x >= (*it)->getX() + 1) && y <= (*it)->getY() + SPRITE_HEIGHT && y >= (*it)->getY()){
                     return true;
                 }
                 it++;

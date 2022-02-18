@@ -34,6 +34,15 @@ private:
     bool hasGoodie;
 };
 
+class Pipe: public Actor{
+public:
+    Pipe(int x, int y, StudentWorld* world);
+    virtual ~Pipe();
+    virtual void doSomething(){return;}
+    virtual void bonk(){return;}
+    void damage(){return;}
+};
+
 class Peach: public Actor{
 public:
     Peach(int x, int y, StudentWorld* world);
@@ -44,6 +53,16 @@ public:
 private:
     int hitPoints;
     int jumpDistance;
+};
+
+class Goomba: public Actor{
+public:
+    Goomba(int x, int y, StudentWorld* world, int startDirection);
+    virtual ~Goomba();
+    virtual void doSomething();
+    virtual void bonk(){return;}
+    void damage(){return;}
+private:
 };
 
 
