@@ -17,11 +17,13 @@ GameWorld* createStudentWorld(string assetPath)
 StudentWorld::StudentWorld(string assetPath)
 : GameWorld(assetPath)
 {
-    std::vector<Actor*> characters;
+    srand(time(0));
+    //std::vector<Actor*> characters;
 }
 
 int StudentWorld::init()
 {
+
     Level lev(assetPath());
     string level_file = "level01.txt";
     Level::LoadResult result = lev.loadLevel(level_file);
@@ -33,21 +35,18 @@ int StudentWorld::init()
     {
         for (int x = 0; x < 32; x++){
             for (int y = 0; y < 32; y++){
-                cerr << "Successfully loaded level" << endl;
                 Level::GridEntry ge;
                 ge = lev.getContentsOf(x, y); // x=5, y=10
                 switch (ge)
                 {
                     case Level::empty:{
-                        cout << "Location 5,10 is empty" << endl;
                         break;
                     }
                     case Level::koopa:{
-                        cout << "Location 5,10 starts with a koopa" << endl;
                         break;
                     }
                     case Level::goomba:{
-                        int random = rand() % 1;
+                        int random = rand() % 2;
                         if (random == 1){random = 180;}
                         characters.push_back(new Goomba(x * SPRITE_WIDTH,y * SPRITE_HEIGHT,this,random));
 
@@ -59,7 +58,6 @@ int StudentWorld::init()
                         break;
                     }
                     case Level::flag:{
-                        cout << "Location 5,10 is where a flag is" << endl;
                         break;
                     }
                     case Level::block:{
@@ -130,13 +128,18 @@ bool StudentWorld::Overlap(int x,int y, char direction){
     vector<Actor*>::iterator it;
     it = characters.begin();
     switch(direction){
-        case 'l':
-        case 'r':{
+        case 'l':{
             while(it != characters.end()){
                 if (x <= (*it)->getX() + SPRITE_WIDTH && x >= (*it)->getX() &&  y <= (*it)->getY() + SPRITE_HEIGHT  &&  y >= (*it)->getY()){
                     return true;
                 }
-                if (x <= (*it)->getX() && x >= (*it)->getX() +SPRITE_WIDTH  && y <= (*it)->getY() + SPRITE_HEIGHT  && y >= (*it)->getY()) {
+                it++;
+            }
+            break;
+        }
+        case 'r':{
+            while(it != characters.end()){
+                if (x >= (*it)->getX() && x <= (*it)->getX() +SPRITE_WIDTH  && y <= (*it)->getY() + SPRITE_HEIGHT  && y >= (*it)->getY()) {
                     return true;
                 }
                 it++;
@@ -154,7 +157,7 @@ bool StudentWorld::Overlap(int x,int y, char direction){
         }
         case 'u': {
             while(it != characters.end()){
-                if ((x <=(*it)->getX() + SPRITE_WIDTH - 1 && x >= (*it)->getX() + 1) &&  y == (*it)->getY() + SPRITE_HEIGHT - 1 ){
+                if ((x <=(*it)->getX() + SPRITE_WIDTH - 1 && x >= (*it)->getX() + 1) &&  y <= (*it)->getY() + SPRITE_HEIGHT - 1  && y >= (*it)->getY()){
                     return true;
                 }
                 it++;
