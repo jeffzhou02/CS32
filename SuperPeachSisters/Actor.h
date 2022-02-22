@@ -51,11 +51,18 @@ public:
     Peach(int x, int y, StudentWorld* world);
     virtual ~Peach();
     virtual void doSomething();
+    void setFlower(bool power){flower = power;}
+    char getFlowerStatus(){return flower;}
+    void setHitpoints(int hp){hitPoints = hp;}
+    //int getHP(){return hitPoints;}
     virtual void bonk(){return;}
     void damage(){return;}
 private:
     int hitPoints;
     int jumpDistance;
+    bool flower;
+    bool star;
+    bool shroom;
 };
 
 class Goomba: public Actor{

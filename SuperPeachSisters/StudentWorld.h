@@ -23,7 +23,9 @@ public:
   virtual int move();
   virtual void cleanUp();
     void createObject(int x, int y,char type);
-    bool Overlap(int x, int y, char direction);
+    bool Overlap(int x, int y, char direction, bool isBonk);
+    bool atPeach(int x, int y);
+    void updatePeach(char powerUp);
 
 
 private:

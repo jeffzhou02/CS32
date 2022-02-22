@@ -107,6 +107,7 @@ int StudentWorld::move()
 {
     // This code is here merely to allow the game to build, run, and terminate after you hit enter.
     // Notice that the return value GWSTATUS_PLAYER_DIED will cause our framework to end the current level.
+    
     vector<Actor*>::iterator it;
     it = characters.begin();
     while(it != characters.end()){
@@ -114,7 +115,9 @@ int StudentWorld::move()
         it++;
     }
     m_player->doSomething();
+    
     return GWSTATUS_CONTINUE_GAME;
+
 }
 
 
@@ -134,17 +137,17 @@ void StudentWorld::cleanUp()
 
 // atempt to bonk parameter for overlap - if you want the thing to interact with the other object pass in true
 
-// isSolid() variable of actor 
+// isSolid() variable of actor
 
 
-bool StudentWorld::Overlap(int x,int y, char direction){
+bool StudentWorld::Overlap(int x,int y, char direction, bool isBonk){
     vector<Actor*>::iterator it;
     it = characters.begin();
     switch(direction){
         case 'l':{
             while(it != characters.end()){
                 if (x <= (*it)->getX() + SPRITE_WIDTH && x >= (*it)->getX() &&  y <= (*it)->getY() + SPRITE_HEIGHT  &&  y >= (*it)->getY()){
-                    (*it)->bonk();
+                    if(isBonk){(*it)->bonk();}
                     return (*it)->isSolid();
                 }
                 it++;
@@ -154,7 +157,7 @@ bool StudentWorld::Overlap(int x,int y, char direction){
         case 'r':{
             while(it != characters.end()){
                 if (x >= (*it)->getX() && x <= (*it)->getX() +SPRITE_WIDTH  && y <= (*it)->getY() + SPRITE_HEIGHT  && y >= (*it)->getY()) {
-                    (*it)->bonk();
+                    if(isBonk){(*it)->bonk();}
                     return (*it)->isSolid();
                 }
                 it++;
@@ -164,7 +167,7 @@ bool StudentWorld::Overlap(int x,int y, char direction){
         case 'd': {
             while(it != characters.end()){
                 if ((x <=(*it)->getX() + SPRITE_WIDTH - 1 && x >= (*it)->getX() + 1) && y <= (*it)->getY() + SPRITE_HEIGHT && y >= (*it)->getY()){
-                    (*it)->bonk();
+                    if(isBonk){(*it)->bonk();}
                     return (*it)->isSolid();
                 }
                 it++;
@@ -174,7 +177,7 @@ bool StudentWorld::Overlap(int x,int y, char direction){
         case 'u': {
             while(it != characters.end()){
                 if ((x <=(*it)->getX() + SPRITE_WIDTH - 1 && x >= (*it)->getX() + 1) &&  y <= (*it)->getY() + SPRITE_HEIGHT - 1  && y >= (*it)->getY()){
-                    (*it)->bonk();
+                    if(isBonk){(*it)->bonk();}
                     return (*it)->isSolid();
                 }
                 it++;
@@ -186,6 +189,28 @@ bool StudentWorld::Overlap(int x,int y, char direction){
 
     return false;
 }
+
+
+bool StudentWorld::atPeach(int x, int y){
+    if (x >= m_player->getX() && x <= m_player->getX() + SPRITE_WIDTH - 1 &&
+        y >= m_player->getY() && y <= m_player->getY()+SPRITE_HEIGHT - 1){
+        return true;
+    }
+    return false;
+}
+
+void StudentWorld::updatePeach(char powerUp){
+    m_player->setHitpoints(2);
+    switch (powerUp){
+        case 'f':{
+            m_player->setFlower(true);
+        }
+    }
+}
+
+
+
+
 
 
 
