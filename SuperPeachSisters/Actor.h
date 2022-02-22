@@ -8,7 +8,7 @@ class StudentWorld;
 
 class Actor : public GraphObject{
 public:
-    Actor(int x, int y, int imageID, StudentWorld* world, bool status, int startDirection, int depth, double size);
+    Actor(int x, int y, int imageID, StudentWorld* world, bool status, int startDirection, int depth, double size, bool solid);
    virtual ~Actor();
     virtual void doSomething() = 0;
     virtual void damage() = 0;
@@ -16,22 +16,25 @@ public:
     StudentWorld* getWorld(){return m_world;};
     void setStatus(bool status){m_status = status;}
     bool getStatus() const{return m_status;}
+    bool isSolid() const{return m_solid;}
 private:
     bool m_status;
+    bool m_solid;
     StudentWorld* m_world;
 };
 
 
 class Block : public Actor{
 public:
-    Block(int x, int y, StudentWorld* world, bool hasGoodie);
+    Block(int x, int y, StudentWorld* world, char type );
     virtual ~Block();
     virtual void doSomething(){return;}
-    virtual void bonk(){return;}
+    virtual void bonk();
     //virtual bool isDamagable();
     void damage(){return;}
 private:
-    bool hasGoodie;
+    char m_goodie;
+    bool bonked;
 };
 
 class Pipe: public Actor{
@@ -63,6 +66,30 @@ public:
     virtual void bonk(){return;}
     void damage(){return;}
 private:
+};
+
+
+class Flag: public Actor{
+public:
+    Flag(int x, int y, StudentWorld* world, int startDirection);
+    virtual ~Flag();
+    virtual void doSomething();
+    virtual void bonk(){return;}
+    void damage(){return;}
+private:
+};
+
+
+class Flower: public Actor{
+public:
+    Flower(int x, int y, StudentWorld* world);
+    virtual ~Flower();
+    virtual void doSomething();
+    virtual void bonk(){return;}
+    void damage(){return;}
+private:
+    char type;
+    
 };
 
 

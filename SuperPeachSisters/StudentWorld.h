@@ -12,6 +12,8 @@
 class Peach;
 class Block;
 class Actor;
+
+
 class StudentWorld : public GameWorld
 {
 public:
@@ -20,7 +22,7 @@ public:
   virtual int init();
   virtual int move();
   virtual void cleanUp();
-  void loadLevel();
+    void createObject(int x, int y,char type);
     bool Overlap(int x, int y, char direction);
 
 

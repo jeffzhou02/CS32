@@ -15,10 +15,10 @@ GameWorld* createStudentWorld(string assetPath)
 // Students:  Add code to this file, StudentWorld.h, Actor.h, and Actor.cpp
 
 StudentWorld::StudentWorld(string assetPath)
-: GameWorld(assetPath)
+: GameWorld(assetPath), characters()
 {
-    srand(time(0));
-    //std::vector<Actor*> characters;
+    srand(static_cast<unsigned int>(time(nullptr)));
+    m_player = nullptr;
 }
 
 int StudentWorld::init()
@@ -61,7 +61,7 @@ int StudentWorld::init()
                         break;
                     }
                     case Level::block:{
-                        characters.push_back(new Block(x * SPRITE_WIDTH,y * SPRITE_HEIGHT,this,false));
+                        characters.push_back(new Block(x * SPRITE_WIDTH,y * SPRITE_HEIGHT,this,'n'));
                         break;
                     }
                     case Level::piranha:{
@@ -73,7 +73,7 @@ int StudentWorld::init()
                         break;
                     }
                     case Level::flower_goodie_block:{
-                        characters.push_back(new Block(x * SPRITE_WIDTH,y * SPRITE_HEIGHT,this,false));
+                        characters.push_back(new Block(x * SPRITE_WIDTH,y * SPRITE_HEIGHT,this,'f'));
                         break;
                     }
                     case Level::pipe:{
@@ -93,6 +93,13 @@ int StudentWorld::init()
         }
     }
     return GWSTATUS_CONTINUE_GAME;
+}
+
+void StudentWorld::createObject(int x, int y, char type){
+    if (type == 'f'){
+        characters.push_back(new Flower (x,y,this));
+        cout << "object created" << endl;
+    }
 }
 
 
@@ -124,6 +131,12 @@ void StudentWorld::cleanUp()
     delete m_player;
 }
 
+
+// atempt to bonk parameter for overlap - if you want the thing to interact with the other object pass in true
+
+// isSolid() variable of actor 
+
+
 bool StudentWorld::Overlap(int x,int y, char direction){
     vector<Actor*>::iterator it;
     it = characters.begin();
@@ -131,7 +144,8 @@ bool StudentWorld::Overlap(int x,int y, char direction){
         case 'l':{
             while(it != characters.end()){
                 if (x <= (*it)->getX() + SPRITE_WIDTH && x >= (*it)->getX() &&  y <= (*it)->getY() + SPRITE_HEIGHT  &&  y >= (*it)->getY()){
-                    return true;
+                    (*it)->bonk();
+                    return (*it)->isSolid();
                 }
                 it++;
             }
@@ -140,7 +154,8 @@ bool StudentWorld::Overlap(int x,int y, char direction){
         case 'r':{
             while(it != characters.end()){
                 if (x >= (*it)->getX() && x <= (*it)->getX() +SPRITE_WIDTH  && y <= (*it)->getY() + SPRITE_HEIGHT  && y >= (*it)->getY()) {
-                    return true;
+                    (*it)->bonk();
+                    return (*it)->isSolid();
                 }
                 it++;
             }
@@ -149,7 +164,8 @@ bool StudentWorld::Overlap(int x,int y, char direction){
         case 'd': {
             while(it != characters.end()){
                 if ((x <=(*it)->getX() + SPRITE_WIDTH - 1 && x >= (*it)->getX() + 1) && y <= (*it)->getY() + SPRITE_HEIGHT && y >= (*it)->getY()){
-                    return true;
+                    (*it)->bonk();
+                    return (*it)->isSolid();
                 }
                 it++;
             }
@@ -158,7 +174,8 @@ bool StudentWorld::Overlap(int x,int y, char direction){
         case 'u': {
             while(it != characters.end()){
                 if ((x <=(*it)->getX() + SPRITE_WIDTH - 1 && x >= (*it)->getX() + 1) &&  y <= (*it)->getY() + SPRITE_HEIGHT - 1  && y >= (*it)->getY()){
-                    return true;
+                    (*it)->bonk();
+                    return (*it)->isSolid();
                 }
                 it++;
             }
