@@ -4,7 +4,7 @@
 #include "GameWorld.h"
 #include "Level.h"
 #include <string>
-#include <vector>
+#include <list>
 #include "Actor.h"
 
 
@@ -22,14 +22,14 @@ public:
   virtual int init();
   virtual int move();
   virtual void cleanUp();
-    void createObject(int x, int y,char type);
+    void createObject(int x, int y,char type, int direction);
     bool Overlap(int x, int y, char direction, bool isBonk);
     bool atPeach(int x, int y);
     void updatePeach(char powerUp);
 
 
 private:
-    std::vector <Actor*> characters;
+    std::list <Actor*> characters;
     Peach* m_player;
 };
 

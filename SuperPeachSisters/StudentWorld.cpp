@@ -17,7 +17,6 @@ GameWorld* createStudentWorld(string assetPath)
 StudentWorld::StudentWorld(string assetPath)
 : GameWorld(assetPath), characters()
 {
-    srand(static_cast<unsigned int>(time(nullptr)));
     m_player = nullptr;
 }
 
@@ -46,8 +45,8 @@ int StudentWorld::init()
                         break;
                     }
                     case Level::goomba:{
-                        int random = rand() % 2;
-                        if (random == 1){random = 180;}
+       
+                        int random = randInt(0, 1) * 180;
                         characters.push_back(new Goomba(x * SPRITE_WIDTH,y * SPRITE_HEIGHT,this,random));
 
                         break;
@@ -69,7 +68,7 @@ int StudentWorld::init()
                         break;
                     }
                     case Level::mushroom_goodie_block:{
-                        
+                        characters.push_back(new Block(x * SPRITE_WIDTH,y * SPRITE_HEIGHT,this,'s'));
                         break;
                     }
                     case Level::flower_goodie_block:{
@@ -95,9 +94,17 @@ int StudentWorld::init()
     return GWSTATUS_CONTINUE_GAME;
 }
 
-void StudentWorld::createObject(int x, int y, char type){
+void StudentWorld::createObject(int x, int y, char type, int direction){
     if (type == 'f'){
         characters.push_back(new Flower (x,y,this));
+        cout << "object created" << endl;
+    }
+    if (type == 'b'){
+        characters.push_back(new pFireball (x,y,direction,this));
+        cout << "object created" << endl;
+    }
+    if (type == 's'){
+        characters.push_back(new Shroom (x,y,this));
         cout << "object created" << endl;
     }
 }
@@ -108,13 +115,23 @@ int StudentWorld::move()
     // This code is here merely to allow the game to build, run, and terminate after you hit enter.
     // Notice that the return value GWSTATUS_PLAYER_DIED will cause our framework to end the current level.
     
-    vector<Actor*>::iterator it;
+    list<Actor*>::iterator it;
     it = characters.begin();
+    m_player->doSomething();
     while(it != characters.end()){
+        if ((*it)->getStatus() == true){
         (*it)->doSomething();
         it++;
+        }
+        else{
+            Actor* temp;
+            temp = *it;
+            it = characters.erase(it);
+            delete temp;
+            return GWSTATUS_CONTINUE_GAME;
+
+        }
     }
-    m_player->doSomething();
     
     return GWSTATUS_CONTINUE_GAME;
 
@@ -123,7 +140,7 @@ int StudentWorld::move()
 
 void StudentWorld::cleanUp()
 {
-    vector<Actor*>::iterator it;
+    list<Actor*>::iterator it;
     it = characters.begin();
     while(it != characters.end()){
         Actor* temp;
@@ -141,7 +158,7 @@ void StudentWorld::cleanUp()
 
 
 bool StudentWorld::Overlap(int x,int y, char direction, bool isBonk){
-    vector<Actor*>::iterator it;
+    list<Actor*>::iterator it;
     it = characters.begin();
     switch(direction){
         case 'l':{
@@ -185,8 +202,6 @@ bool StudentWorld::Overlap(int x,int y, char direction, bool isBonk){
             break;
         }
     }
-    
-
     return false;
 }
 
@@ -204,6 +219,9 @@ void StudentWorld::updatePeach(char powerUp){
     switch (powerUp){
         case 'f':{
             m_player->setFlower(true);
+        }
+        case 's':{
+            m_player->setShroom(true);
         }
     }
 }
