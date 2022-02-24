@@ -24,8 +24,9 @@ public:
   virtual void cleanUp();
     void createObject(int x, int y,char type, int direction);
     bool Overlap(int x, int y, char direction, bool isBonk);
-    bool atPeach(int x, int y);
+    bool atPeach(int x, int y, bool isBonk);
     void updatePeach(char powerUp);
+    bool getPeachStar();
 
 
 private:

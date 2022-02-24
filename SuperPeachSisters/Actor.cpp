@@ -36,6 +36,10 @@ void Block::bonk(){
         getWorld()->createObject(getX(), getY() + 8, 's',0);
         bonked = true;
     }
+    else if (bonked == false && m_goodie == 'i'){
+        getWorld()->createObject(getX(), getY() + 8, 'i',0);
+        bonked = true;
+    }
 }
 
 
@@ -60,23 +64,50 @@ Peach::Peach(int x, int y, StudentWorld* world): Actor(x, y, IID_PEACH, world, t
     flower = false;
     star = false;
     shroom = false;
+    tempIn = 0;
+}
+
+void Peach::bonk(){
+    if (star > 0 || tempIn > 0){
+        return;
+    }
+    if (hitPoints == 2){
+        getWorld()->playSound(SOUND_PLAYER_HURT);
+        tempIn = 10;
+        shroom = false;
+        flower = false;
+        hitPoints--;
+        return;
+    }
+    else if (hitPoints == 1){
+        hitPoints = 0;
+        setStatus(false);
+        return;
+    }
 }
 
 
 
 void Peach::doSomething(){
+    cout << star << endl;
+    if(hitPoints == 0){return;}
+    
+    if (star > 0){star--;}
+    if (tempIn > 0){tempIn--;}
+
+    
     bool isJumping = jumpDistance > 0;
+    
     if (rechargeTime > 0){rechargeTime--;}
-    if(hitPoints == 0){
-        return;
+    
+    
+    if( getWorld()->Overlap(this->getX() + SPRITE_WIDTH - 1, this->getY() + SPRITE_HEIGHT + 1,'u',true) == false && getWorld()->Overlap(this->getX(), this->getY() + SPRITE_HEIGHT + 1,'u',true) == false && jumpDistance > 0 && isJumping == true){
+        this->moveTo(getX(),getY()+ 4);
+        jumpDistance--;
     }
-        if( getWorld()->Overlap(this->getX() + SPRITE_WIDTH - 1, this->getY() + SPRITE_HEIGHT + 1,'u',true) == false && getWorld()->Overlap(this->getX(), this->getY() + SPRITE_HEIGHT + 1,'u',true) == false && jumpDistance > 0 && isJumping == true){
-            this->moveTo(getX(),getY()+ 4);
-            jumpDistance--;
-        }
-        else{
-            jumpDistance = 0;
-        }
+    else{
+        jumpDistance = 0;
+    }
     
     int ch;
     if(getWorld()->getKey(ch)){
@@ -95,7 +126,7 @@ void Peach::doSomething(){
             }
         }
         if (ch == KEY_PRESS_UP){
-            if (getWorld()->Overlap(getX(), getY() - 1,'d',true) == true || getWorld()-> Overlap(getX() + SPRITE_WIDTH - 1, getY() - 1,'d',true) == true){
+            if (getWorld()->Overlap(getX(), getY() - 1,'d',false) == true || getWorld()-> Overlap(getX() + SPRITE_WIDTH - 1, getY() - 1,'d',false) == true){
                 getWorld()->playSound(SOUND_PLAYER_JUMP);
                 if(shroom == true){
                     jumpDistance = 12;
@@ -106,10 +137,12 @@ void Peach::doSomething(){
         if (ch == KEY_PRESS_SPACE){
             if (flower == true && rechargeTime == 0){
                 if (getDirection() == 0){
+                    getWorld()->playSound(SOUND_PLAYER_FIRE);
                     getWorld()->createObject(getX() + SPRITE_WIDTH, getY(),'b', 0);
                     rechargeTime = 8;
                 }
                 if (getDirection() == 180){
+                    getWorld()->playSound(SOUND_PLAYER_FIRE);
                     getWorld()->createObject(getX(), getY(),'b', 180);
                     rechargeTime = 8;
                 }
@@ -120,7 +153,7 @@ void Peach::doSomething(){
     else{
         if(getWorld()->Overlap(getX(), getY() - 1,'d',false) == false && getWorld()-> Overlap(getX() + SPRITE_WIDTH -1, getY() - 1,'d',false) == false && isJumping == false){
             this->moveTo(getX(), getY() - 4);
-       }
+        }
     }
     
     
@@ -141,8 +174,14 @@ void Goomba::doSomething(){
     if(getStatus() == false){
         return;
     }
+    if (getWorld()->atPeach(getX(), getY() + SPRITE_HEIGHT/2,true) == true ||
+        getWorld()->atPeach(getX() + SPRITE_WIDTH - 1, getY() + SPRITE_HEIGHT/2,true) == true){
+        if (getWorld()->getPeachStar()){
+            this->bonk();
+        }
+    }
     if (getDirection() == 180){
-        if(getWorld()->Overlap(this->getX() - 1, this->getY() + SPRITE_HEIGHT - 1,'l',false) == false &&
+        if(getWorld()->Overlap(this->getX() - 1, this->getY() + SPRITE_HEIGHT/2,'l',false) == false &&
            getWorld()->Overlap(this->getX() -1 , this->getY(),'l',false) == true){
             this->moveTo(getX()- 1,getY());
         }
@@ -152,13 +191,18 @@ void Goomba::doSomething(){
     }
     if (getDirection() == 0){
         if(getWorld()->Overlap(this->getX() + SPRITE_WIDTH + 1, this->getY(),'r',false) == true &&
-           getWorld()->Overlap(this->getX() + SPRITE_WIDTH + 1, this->getY() + SPRITE_HEIGHT - 1,'r',false) == false){
-            this->moveTo(getX()+ 1,getY());
+           getWorld()->Overlap(this->getX() + SPRITE_WIDTH + 1, this->getY() + SPRITE_HEIGHT/2,'r',false) == false){
+            this->moveTo(getX() + 1,getY());
         }
         else{
             setDirection(180);
         }
     }
+}
+
+void Goomba::bonk(){
+    getWorld()->playSound(SOUND_PLAYER_KICK);
+    setStatus(false);
 }
 
 Goomba::~Goomba(){}
@@ -175,33 +219,33 @@ void Flower::doSomething(){
     if (getStatus() == false){
         return;
     }
-    if (getWorld()->atPeach(getX(), getY() + SPRITE_HEIGHT/2) == true ||
-        getWorld()->atPeach(getX() + SPRITE_WIDTH - 1, getY() + SPRITE_HEIGHT/2) == true){
+    if (getWorld()->atPeach(getX(), getY() + SPRITE_HEIGHT/2,false) == true ||
+        getWorld()->atPeach(getX() + SPRITE_WIDTH - 1, getY() + SPRITE_HEIGHT/2,false) == true){
         getWorld()->updatePeach('f');
         setStatus(false);
         getWorld()->playSound(SOUND_PLAYER_POWERUP);
         return;
     }
-    if(getWorld()->Overlap(getX(), getY() - 1,'d',false) == false && getWorld()-> Overlap(getX() + SPRITE_WIDTH -1, getY() - 1,'d',false) == false){
+    if(getWorld()->Overlap(getX(), getY() - 1,'d',false) == false && getWorld()-> Overlap(getX() + SPRITE_WIDTH -1, getY() - 1,'d',false) == false ){
         this->moveTo(getX(), getY() - 2);
     }
     if (getDirection() == 180){
-        if(getWorld()->Overlap(this->getX() - 1, this->getY() + SPRITE_HEIGHT - 1,'l',false) == false){
-            this->moveTo(getX()- 2,getY());
+        if(getWorld()->Overlap(this->getX(), this->getY() + SPRITE_HEIGHT/2,'l',false) == false && getWorld()->Overlap(this->getX(), this->getY() + 1,'l',false) == false){
+            this->moveTo(getX()-2, getY());
         }
         else{
             setDirection(0);
         }
     }
     if (getDirection() == 0){
-        if(getWorld()->Overlap(this->getX() + SPRITE_WIDTH + 1, this->getY() + SPRITE_HEIGHT - 1,'r',false) == false){
-            this->moveTo(getX()+ 2,getY());
+        if(getWorld()->Overlap(this->getX() + SPRITE_WIDTH, this->getY() + SPRITE_HEIGHT/2,'r',false) == false && getWorld()->Overlap(this->getX() + SPRITE_WIDTH, this->getY() + 1,'r',false) == false){
+            this->moveTo(getX()+2, getY());
         }
         else{
             setDirection(180);
         }
     }
-
+    
 }
 
 Flower::~Flower(){}
@@ -217,36 +261,79 @@ void Shroom::doSomething(){
     if (getStatus() == false){
         return;
     }
-    if (getWorld()->atPeach(getX(), getY() + SPRITE_HEIGHT/2) == true ||
-        getWorld()->atPeach(getX() + SPRITE_WIDTH - 1, getY() + SPRITE_HEIGHT/2) == true){
+    if (getWorld()->atPeach(getX(), getY() + SPRITE_HEIGHT/2,false) == true ||
+        getWorld()->atPeach(getX() + SPRITE_WIDTH - 1, getY() + SPRITE_HEIGHT/2,false) == true){
         getWorld()->updatePeach('s');
         setStatus(false);
         getWorld()->playSound(SOUND_PLAYER_POWERUP);
         return;
     }
-    if(getWorld()->Overlap(getX(), getY() - 1,'d',false) == false && getWorld()-> Overlap(getX() + SPRITE_WIDTH -1, getY() - 1,'d',false) == false){
+    if(getWorld()->Overlap(getX(), getY() - 1,'d',false) == false && getWorld()-> Overlap(getX() + SPRITE_WIDTH -1, getY() - 1,'d',false) == false ){
         this->moveTo(getX(), getY() - 2);
     }
     if (getDirection() == 180){
-        if(getWorld()->Overlap(this->getX() - 1, this->getY() + SPRITE_HEIGHT - 1,'l',false) == false){
-            this->moveTo(getX()- 2,getY());
+        if(getWorld()->Overlap(this->getX(), this->getY() + SPRITE_HEIGHT/2,'l',false) == false && getWorld()->Overlap(this->getX(), this->getY() + 1,'l',false) == false){
+            this->moveTo(getX()-2, getY());
         }
         else{
             setDirection(0);
         }
     }
     if (getDirection() == 0){
-        if(getWorld()->Overlap(this->getX() + SPRITE_WIDTH + 1, this->getY() + SPRITE_HEIGHT - 1,'r',false) == false){
-            this->moveTo(getX()+ 2,getY());
+        if(getWorld()->Overlap(this->getX() + SPRITE_WIDTH, this->getY() + SPRITE_HEIGHT/2,'r',false) == false && getWorld()->Overlap(this->getX() + SPRITE_WIDTH, this->getY() + 1,'r',false) == false){
+            this->moveTo(getX()+2, getY());
         }
         else{
             setDirection(180);
         }
     }
-
+    
 }
 
 Shroom::~Shroom(){}
+
+
+
+
+
+
+
+Star::Star(int x, int y, StudentWorld* world) :Actor(x, y, IID_STAR, world, true,0,1,1,false) {}
+
+void Star::doSomething(){
+    if (getStatus() == false){
+        return;
+    }
+    if (getWorld()->atPeach(getX(), getY() + SPRITE_HEIGHT/2,false) == true ||
+        getWorld()->atPeach(getX() + SPRITE_WIDTH - 1, getY() + SPRITE_HEIGHT/2,false) == true){
+        getWorld()->updatePeach('i');
+        setStatus(false);
+        getWorld()->playSound(SOUND_PLAYER_POWERUP);
+        return;
+    }
+    if(getWorld()->Overlap(getX(), getY() - 1,'d',false) == false && getWorld()-> Overlap(getX() + SPRITE_WIDTH -1, getY() - 1,'d',false) == false ){
+        this->moveTo(getX(), getY() - 2);
+    }
+    if (getDirection() == 180){
+        if(getWorld()->Overlap(this->getX(), this->getY() + SPRITE_HEIGHT/2,'l',false) == false && getWorld()->Overlap(this->getX(), this->getY() + 1,'l',false) == false){
+            this->moveTo(getX()-2, getY());
+        }
+        else{
+            setDirection(0);
+        }
+    }
+    if (getDirection() == 0){
+        if(getWorld()->Overlap(this->getX() + SPRITE_WIDTH, this->getY() + SPRITE_HEIGHT/2,'r',false) == false && getWorld()->Overlap(this->getX() + SPRITE_WIDTH, this->getY() + 1,'r',false) == false){
+            this->moveTo(getX()+2, getY());
+        }
+        else{
+            setDirection(180);
+        }
+    }
+}
+
+Star::~Star(){}
+
 
 
 
@@ -262,20 +349,20 @@ Shroom::~Shroom(){}
 pFireball::pFireball(int x, int y,int direction, StudentWorld* world):Actor(x, y, IID_PEACH_FIRE, world, true,direction,1,1,false){}
 
 void pFireball::doSomething(){
-    if(getWorld()->Overlap(getX(), getY() - 1,'d',false) == false && getWorld()-> Overlap(getX() + SPRITE_WIDTH -1, getY() - 1,'d',false) == false){
+    if(getWorld()->Overlap(getX(), getY() - 1,'d',false) == false && getWorld()-> Overlap(getX() + SPRITE_WIDTH -1, getY() - 1,'d',false) == false ){
         this->moveTo(getX(), getY() - 2);
     }
     if (getDirection() == 180){
-        if(getWorld()->Overlap(this->getX() - 1, this->getY() + SPRITE_HEIGHT - 1,'l',false) == false){
-            this->moveTo(getX()- 2,getY());
+        if(getWorld()->Overlap(this->getX(), this->getY() + SPRITE_HEIGHT/2,'l',false) == false && getWorld()->Overlap(this->getX(), this->getY() + 1,'l',false) == false){
+            this->moveTo(getX()-2, getY());
         }
         else{
             setStatus(false);
         }
     }
     if (getDirection() == 0){
-        if(getWorld()->Overlap(this->getX() + SPRITE_WIDTH + 1, this->getY() + SPRITE_HEIGHT - 1,'r',false) == false){
-            this->moveTo(getX()+ 2,getY());
+        if(getWorld()->Overlap(this->getX() + SPRITE_WIDTH, this->getY() + SPRITE_HEIGHT/2,'r',false) == false && getWorld()->Overlap(this->getX() + SPRITE_WIDTH, this->getY() + 1,'r',false) == false){
+            this->moveTo(getX()+2, getY());
         }
         else{
             setStatus(false);

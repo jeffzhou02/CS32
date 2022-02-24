@@ -52,20 +52,23 @@ public:
     virtual ~Peach();
     virtual void doSomething();
     void setFlower(bool power){flower = power;}
-    char getFlowerStatus(){return flower;}
+    bool getFlowerStatus(){return flower;}
     void setShroom(bool power){shroom = power;}
-    char getShroomStatus(){return shroom;}
+    bool getShroomStatus(){return shroom;}
+    void setInvicible(int power){star = power;}
+    int getInvicibleStatus(){return star;}
     void setHitpoints(int hp){hitPoints = hp;}
-    //int getHP(){return hitPoints;}
-    virtual void bonk(){return;}
+    int getHP(){return hitPoints;}
+    virtual void bonk();
     void damage(){return;}
 private:
     int hitPoints;
     int jumpDistance;
     bool flower;
-    bool star;
+    int star;
     bool shroom;
     int rechargeTime;
+    int tempIn;
 };
 
 class Goomba: public Actor{
@@ -73,7 +76,7 @@ public:
     Goomba(int x, int y, StudentWorld* world, int startDirection);
     virtual ~Goomba();
     virtual void doSomething();
-    virtual void bonk(){return;}
+    virtual void bonk();
     void damage(){return;}
 private:
 };
@@ -105,6 +108,17 @@ class Shroom: public Actor{
 public:
     Shroom(int x, int y, StudentWorld* world);
     virtual ~Shroom();
+    virtual void doSomething();
+    virtual void bonk(){return;}
+    void damage(){return;}
+
+};
+
+
+class Star: public Actor{
+public:
+    Star(int x, int y, StudentWorld* world);
+    virtual ~Star();
     virtual void doSomething();
     virtual void bonk(){return;}
     void damage(){return;}

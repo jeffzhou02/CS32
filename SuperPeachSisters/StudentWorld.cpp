@@ -85,6 +85,7 @@ int StudentWorld::init()
                     }
                     case Level::star_goodie_block:
                     {
+                        characters.push_back(new Block(x * SPRITE_WIDTH,y * SPRITE_HEIGHT,this,'i'));
                         break;
                     }
                 }
@@ -107,6 +108,10 @@ void StudentWorld::createObject(int x, int y, char type, int direction){
         characters.push_back(new Shroom (x,y,this));
         cout << "object created" << endl;
     }
+    if (type == 'i'){
+        characters.push_back(new Star (x,y,this));
+        cout << "object created" << endl;
+    }
 }
 
 
@@ -115,9 +120,18 @@ int StudentWorld::move()
     // This code is here merely to allow the game to build, run, and terminate after you hit enter.
     // Notice that the return value GWSTATUS_PLAYER_DIED will cause our framework to end the current level.
     
+
+    
     list<Actor*>::iterator it;
     it = characters.begin();
     m_player->doSomething();
+    
+    cout << m_player->getHP() << endl;
+    if (m_player->getHP() == 0){
+        playSound(GWSTATUS_PLAYER_DIED);
+        return GWSTATUS_PLAYER_DIED;
+    }
+    
     while(it != characters.end()){
         if ((*it)->getStatus() == true){
         (*it)->doSomething();
@@ -206,9 +220,17 @@ bool StudentWorld::Overlap(int x,int y, char direction, bool isBonk){
 }
 
 
-bool StudentWorld::atPeach(int x, int y){
+
+
+
+
+
+bool StudentWorld::atPeach(int x, int y, bool isBonk){
     if (x >= m_player->getX() && x <= m_player->getX() + SPRITE_WIDTH - 1 &&
         y >= m_player->getY() && y <= m_player->getY()+SPRITE_HEIGHT - 1){
+        if(isBonk){
+            m_player->bonk();
+        }
         return true;
     }
     return false;
@@ -219,11 +241,25 @@ void StudentWorld::updatePeach(char powerUp){
     switch (powerUp){
         case 'f':{
             m_player->setFlower(true);
+            m_player->setHitpoints(2);
+            break;
         }
         case 's':{
             m_player->setShroom(true);
+            m_player->setHitpoints(2);
+            break;
+        }
+        case 'i':{
+            m_player->setInvicible(1000);
+            break;
         }
     }
+}
+
+
+
+bool StudentWorld::getPeachStar(){
+    return m_player->getInvicibleStatus() > 0;
 }
 
 
