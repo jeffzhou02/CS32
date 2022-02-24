@@ -24,21 +24,32 @@ Block::Block(int x, int y, StudentWorld* world, char type): Actor(x, y, IID_BLOC
 
 Block::~Block(){}
 
-void Block::bonk(){
-    if (m_goodie == 'n'){
-        return;
-    }
-    else if (bonked == false && m_goodie == 'f'){
-        getWorld()->createObject(getX(), getY() + 8, 'f',0);
-        bonked = true;
-    }
-    else if (bonked == false && m_goodie == 's'){
-        getWorld()->createObject(getX(), getY() + 8, 's',0);
-        bonked = true;
-    }
-    else if (bonked == false && m_goodie == 'i'){
-        getWorld()->createObject(getX(), getY() + 8, 'i',0);
-        bonked = true;
+void Block::bonk(){ // fix block so bonk sound plays on goodie blocks too
+    
+    if (getWorld()->atPeach(getX() + SPRITE_WIDTH/2, getY() - 1, false) == true || getWorld()->atPeach(getX() + SPRITE_WIDTH, getY() - 1, false) == true ||
+        getWorld()->atPeach(getX(), getY() - 1, false) == true){
+        
+        if (m_goodie == 'n'){
+            getWorld()->playSound(SOUND_PLAYER_BONK);
+            return;
+        }
+        
+        if (bonked == false && m_goodie == 'f'){
+            getWorld()->playSound(SOUND_POWERUP_APPEARS);
+            getWorld()->createObject(getX(), getY() + 8, 'f',0);
+            bonked = true;
+        }
+        if (bonked == false && m_goodie == 's'){
+            getWorld()->playSound(SOUND_POWERUP_APPEARS);
+            getWorld()->createObject(getX(), getY() + 8, 's',0);
+            bonked = true;
+        }
+        if (bonked == false && m_goodie == 'i'){
+            getWorld()->playSound(SOUND_POWERUP_APPEARS);
+            getWorld()->createObject(getX(), getY() + 8, 'i',0);
+            bonked = true;
+        }
+        
     }
 }
 
@@ -89,12 +100,11 @@ void Peach::bonk(){
 
 
 void Peach::doSomething(){
-    cout << star << endl;
     if(hitPoints == 0){return;}
     
     if (star > 0){star--;}
     if (tempIn > 0){tempIn--;}
-
+    
     
     bool isJumping = jumpDistance > 0;
     
@@ -115,13 +125,13 @@ void Peach::doSomething(){
         int curY = getY();
         if (ch == KEY_PRESS_LEFT){
             setDirection(180);
-            if(getWorld()->Overlap(this->getX(), this->getY() + SPRITE_HEIGHT/2,'l',false) == false){
+            if(getWorld()->Overlap(this->getX(), this->getY() + SPRITE_HEIGHT/2,'l',true) == false){
                 this->moveTo(curX-4, curY);
             }
         }
         if (ch == KEY_PRESS_RIGHT){
             setDirection(0);
-            if(getWorld()->Overlap(this->getX() + SPRITE_WIDTH, this->getY() + SPRITE_HEIGHT/2,'r',false) == false){
+            if(getWorld()->Overlap(this->getX() + SPRITE_WIDTH, this->getY() + SPRITE_HEIGHT/2,'r',true) == false){
                 this->moveTo(curX+4, curY);
             }
         }
@@ -201,11 +211,87 @@ void Goomba::doSomething(){
 }
 
 void Goomba::bonk(){
-    getWorld()->playSound(SOUND_PLAYER_KICK);
+    
+    if (getWorld()->atPeach(getX() + SPRITE_WIDTH/2, getY() + SPRITE_HEIGHT/2, false) == true ||
+        getWorld()->atPeach(getX() + SPRITE_WIDTH, getY() + SPRITE_HEIGHT/2, false) == true ||
+        getWorld()->atPeach(getX(), getY() + SPRITE_HEIGHT/2, false) == true){
+        if (getWorld()->getPeachStar() >0){
+        getWorld()->playSound(SOUND_PLAYER_KICK);
+        setStatus(false);
+        }
+        return;
+    }
     setStatus(false);
 }
 
 Goomba::~Goomba(){}
+
+
+
+
+
+Piranha::Piranha(int x, int y, StudentWorld *world, int startDirection): Actor(x, y, IID_PIRANHA, world, true,startDirection,0,1,false){
+    firingDelay = 0;
+}
+
+void Piranha::doSomething(){
+    if(getStatus() == false){
+        return;
+    }
+    this->increaseAnimationNumber();
+    if (getWorld()->atPeach(getX(), getY() + SPRITE_HEIGHT/2,true) == true ||
+        getWorld()->atPeach(getX() + SPRITE_WIDTH - 1, getY() + SPRITE_HEIGHT/2,true) == true){
+        if (getWorld()->getPeachStar()){
+            this->bonk();
+        }
+    }
+    if (getWorld()->getPeachY() >= getY() && getWorld()->getPeachY() < getY()*SPRITE_HEIGHT*1.5){
+        if (getWorld()->getPeachX() < getX()){
+            setDirection(180);
+        }
+        else{
+            setDirection(0);
+        }
+        if (firingDelay > 0){
+            firingDelay--;
+            return;
+        }
+        else{
+            //fire
+            firingDelay = 40;
+            if (getDirection() == 0 && getWorld()->getPeachX() < 8 * SPRITE_WIDTH + getX()){
+                getWorld()->playSound(SOUND_PIRANHA_FIRE);
+               getWorld()->createObject(getX()+SPRITE_WIDTH, getY(), 'p', getDirection());
+
+            }
+            if (getDirection() == 180 && getWorld()->getPeachX() > getX() - 8 * SPRITE_WIDTH){
+                getWorld()->playSound(SOUND_PIRANHA_FIRE);
+               getWorld()->createObject(getX() - 1, getY(), 'p', getDirection());
+            }
+            
+        }
+    }
+    else{
+        return;
+    }
+
+}
+
+
+void Piranha::bonk(){
+    if (getWorld()->atPeach(getX() + SPRITE_WIDTH/2, getY() + SPRITE_HEIGHT/2, false) == true ||
+        getWorld()->atPeach(getX() + SPRITE_WIDTH, getY() + SPRITE_HEIGHT/2, false) == true ||
+        getWorld()->atPeach(getX(), getY() + SPRITE_HEIGHT/2, false) == true){
+        if (getWorld()->getPeachStar() >0){
+        getWorld()->playSound(SOUND_PLAYER_KICK);
+        setStatus(false);
+        }
+        return;
+    }
+    setStatus(false);;
+}
+
+Piranha::~Piranha(){}
 
 
 
@@ -344,16 +430,17 @@ Star::~Star(){}
 
 
 
-
+// fix fireball so it disappears when something disappears
 
 pFireball::pFireball(int x, int y,int direction, StudentWorld* world):Actor(x, y, IID_PEACH_FIRE, world, true,direction,1,1,false){}
 
 void pFireball::doSomething(){
+
     if(getWorld()->Overlap(getX(), getY() - 1,'d',false) == false && getWorld()-> Overlap(getX() + SPRITE_WIDTH -1, getY() - 1,'d',false) == false ){
         this->moveTo(getX(), getY() - 2);
     }
     if (getDirection() == 180){
-        if(getWorld()->Overlap(this->getX(), this->getY() + SPRITE_HEIGHT/2,'l',false) == false && getWorld()->Overlap(this->getX(), this->getY() + 1,'l',false) == false){
+        if(getWorld()->Overlap(this->getX(), this->getY() + SPRITE_HEIGHT/2,'l',true) == false && getWorld()->Overlap(this->getX(), this->getY() + 1,'l',true) == false){
             this->moveTo(getX()-2, getY());
         }
         else{
@@ -361,7 +448,7 @@ void pFireball::doSomething(){
         }
     }
     if (getDirection() == 0){
-        if(getWorld()->Overlap(this->getX() + SPRITE_WIDTH, this->getY() + SPRITE_HEIGHT/2,'r',false) == false && getWorld()->Overlap(this->getX() + SPRITE_WIDTH, this->getY() + 1,'r',false) == false){
+        if(getWorld()->Overlap(this->getX() + SPRITE_WIDTH, this->getY() + SPRITE_HEIGHT/2,'r',true) == false && getWorld()->Overlap(this->getX() + SPRITE_WIDTH, this->getY() + 1,'r',true) == false){
             this->moveTo(getX()+2, getY());
         }
         else{
@@ -371,3 +458,40 @@ void pFireball::doSomething(){
 }
 
 pFireball::~pFireball(){}
+
+
+
+
+
+
+
+piranhaFireball::piranhaFireball(int x, int y,int direction, StudentWorld* world):Actor(x, y, IID_PIRANHA_FIRE, world, true,direction,1,1,false){}
+
+void piranhaFireball::doSomething(){
+    if (getWorld()->atPeach(getX(), getY() + SPRITE_HEIGHT/2,true) == true ||
+        getWorld()->atPeach(getX() + SPRITE_WIDTH - 1, getY() + SPRITE_HEIGHT/2,true) == true){
+        setStatus(false);
+
+    }
+    if(getWorld()->Overlap(getX(), getY() - 1,'d',false) == false && getWorld()-> Overlap(getX() + SPRITE_WIDTH -1, getY() - 1,'d',false) == false ){
+        this->moveTo(getX(), getY() - 2);
+    }
+    if (getDirection() == 180){
+        if(getWorld()->Overlap(this->getX(), this->getY() + SPRITE_HEIGHT/2,'l',true) == false && getWorld()->Overlap(this->getX(), this->getY() + 1,'l',true) == false){
+            this->moveTo(getX()-2, getY());
+        }
+        else{
+            setStatus(false);
+        }
+    }
+    if (getDirection() == 0){
+        if(getWorld()->Overlap(this->getX() + SPRITE_WIDTH, this->getY() + SPRITE_HEIGHT/2,'r',true) == false && getWorld()->Overlap(this->getX() + SPRITE_WIDTH, this->getY() + 1,'r',true) == false){
+            this->moveTo(getX()+2, getY());
+        }
+        else{
+            setStatus(false);
+        }
+    }
+}
+
+piranhaFireball::~piranhaFireball(){}

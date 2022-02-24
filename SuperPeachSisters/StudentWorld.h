@@ -27,6 +27,8 @@ public:
     bool atPeach(int x, int y, bool isBonk);
     void updatePeach(char powerUp);
     bool getPeachStar();
+    int getPeachX();
+    int getPeachY();
 
 
 private:

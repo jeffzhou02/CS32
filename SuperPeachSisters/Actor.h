@@ -81,6 +81,18 @@ public:
 private:
 };
 
+class Piranha: public Actor{
+public:
+    Piranha(int x, int y, StudentWorld* world, int startDirection);
+    virtual ~Piranha();
+    virtual void doSomething();
+    virtual void bonk();
+    void damage(){return;}
+private:
+    int firingDelay;
+};
+
+
 
 class Flag: public Actor{
 public:
@@ -134,6 +146,17 @@ public:
     virtual void bonk(){return;}
     void damage(){return;}
 };
+
+
+class piranhaFireball: public Actor{
+public:
+    piranhaFireball(int x, int y, int direction,StudentWorld* world);
+    virtual ~piranhaFireball();
+    virtual void doSomething();
+    virtual void bonk(){return;}
+    void damage(){return;}
+};
+
 
 
 

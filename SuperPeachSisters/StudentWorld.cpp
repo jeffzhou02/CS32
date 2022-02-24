@@ -64,7 +64,8 @@ int StudentWorld::init()
                         break;
                     }
                     case Level::piranha:{
-                        
+                        int random = randInt(0, 1) * 180;
+                        characters.push_back(new Piranha(x * SPRITE_WIDTH,y * SPRITE_HEIGHT,this,random));
                         break;
                     }
                     case Level::mushroom_goodie_block:{
@@ -112,6 +113,10 @@ void StudentWorld::createObject(int x, int y, char type, int direction){
         characters.push_back(new Star (x,y,this));
         cout << "object created" << endl;
     }
+    if (type == 'p'){
+        characters.push_back(new piranhaFireball (x,y,direction,this));
+        cout << "object created" << endl;
+    }
 }
 
 
@@ -126,7 +131,6 @@ int StudentWorld::move()
     it = characters.begin();
     m_player->doSomething();
     
-    cout << m_player->getHP() << endl;
     if (m_player->getHP() == 0){
         playSound(GWSTATUS_PLAYER_DIED);
         return GWSTATUS_PLAYER_DIED;
@@ -261,6 +265,16 @@ void StudentWorld::updatePeach(char powerUp){
 bool StudentWorld::getPeachStar(){
     return m_player->getInvicibleStatus() > 0;
 }
+
+int StudentWorld::getPeachX(){
+    return m_player->getX();
+}
+
+int StudentWorld::getPeachY(){
+    return m_player->getY();
+}
+
+
 
 
 
