@@ -29,11 +29,14 @@ public:
     bool getPeachStar();
     int getPeachX();
     int getPeachY();
+    void finishLevel();
+    void finishGame(){finishedGame = true;}
 
 
 private:
     std::list <Actor*> characters;
     Peach* m_player;
+    bool finishedGame;
 };
 
 #endif // STUDENTWORLD_H_

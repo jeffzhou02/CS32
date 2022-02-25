@@ -18,6 +18,7 @@ StudentWorld::StudentWorld(string assetPath)
 : GameWorld(assetPath), characters()
 {
     m_player = nullptr;
+    finishedGame = false;
 }
 
 int StudentWorld::init()
@@ -25,23 +26,32 @@ int StudentWorld::init()
 
     Level lev(assetPath());
     string level_file = "level01.txt";
+    if (this->getLevel() == 2){
+    level_file = "level02.txt";
+    }
+    if (this->getLevel() == 3){
+    level_file = "level03.txt";
+    }
     Level::LoadResult result = lev.loadLevel(level_file);
     if (result == Level::load_fail_file_not_found)
-        cerr << "Could not find level01.txt data file" << endl;
+        cerr << "Could not find " << level_file << " data file" << endl;
     else if (result == Level::load_fail_bad_format)
-        cerr << "level01.txt is improperly formatted" << endl;
+        cerr << level_file << " is improperly formatted" << endl;
     else if (result == Level::load_success)
     {
         for (int x = 0; x < 32; x++){
             for (int y = 0; y < 32; y++){
                 Level::GridEntry ge;
-                ge = lev.getContentsOf(x, y); // x=5, y=10
+                ge = lev.getContentsOf(x, y);
                 switch (ge)
                 {
                     case Level::empty:{
                         break;
                     }
                     case Level::koopa:{
+                        int r = randInt(0, 1) * 180;
+                        characters.push_back(new Koopa(x * SPRITE_WIDTH,y * SPRITE_HEIGHT,this,r));
+                        
                         break;
                     }
                     case Level::goomba:{
@@ -57,6 +67,8 @@ int StudentWorld::init()
                         break;
                     }
                     case Level::flag:{
+                        characters.push_back(new Flag(x * SPRITE_WIDTH,y * SPRITE_HEIGHT,this));
+
                         break;
                     }
                     case Level::block:{
@@ -81,7 +93,7 @@ int StudentWorld::init()
                         break;
                     }
                     case Level::mario:{
-                        
+                        characters.push_back(new Mario(x * SPRITE_WIDTH,y * SPRITE_HEIGHT,this));
                         break;
                     }
                     case Level::star_goodie_block:
@@ -99,23 +111,27 @@ int StudentWorld::init()
 void StudentWorld::createObject(int x, int y, char type, int direction){
     if (type == 'f'){
         characters.push_back(new Flower (x,y,this));
-        cout << "object created" << endl;
+        cout << "flower created" << endl;
     }
     if (type == 'b'){
         characters.push_back(new pFireball (x,y,direction,this));
-        cout << "object created" << endl;
+        cout << "fireball created" << endl;
     }
     if (type == 's'){
         characters.push_back(new Shroom (x,y,this));
-        cout << "object created" << endl;
+        cout << "shroom created" << endl;
     }
     if (type == 'i'){
         characters.push_back(new Star (x,y,this));
-        cout << "object created" << endl;
+        cout << "star created" << endl;
     }
     if (type == 'p'){
         characters.push_back(new piranhaFireball (x,y,direction,this));
-        cout << "object created" << endl;
+        cout << "piranha fireball created" << endl;
+    }
+    if (type == 'h'){
+        characters.push_back(new shell (x,y,direction,this));
+        cout << "shell created" << endl;
     }
 }
 
@@ -133,7 +149,16 @@ int StudentWorld::move()
     
     if (m_player->getHP() == 0){
         playSound(GWSTATUS_PLAYER_DIED);
+        decLives();
         return GWSTATUS_PLAYER_DIED;
+    }
+    if (m_player->isComplete()){
+        playSound(GWSTATUS_FINISHED_LEVEL);
+        return GWSTATUS_FINISHED_LEVEL;
+    }
+    if(finishedGame == true){
+        playSound(GWSTATUS_PLAYER_WON);
+        return GWSTATUS_PLAYER_WON;
     }
     
     while(it != characters.end()){
@@ -150,7 +175,14 @@ int StudentWorld::move()
 
         }
     }
-    
+    string lives = to_string(getLives());
+    string level = to_string(getLevel());
+    string points = to_string(getScore());
+    string mushroom = "";
+    string flower = "";
+    string star = "";
+    string gameText = "Lives: " + lives + "  Level: " + level + "  Points: " + points;
+    setGameStatText(gameText);
     return GWSTATUS_CONTINUE_GAME;
 
 }
@@ -274,7 +306,9 @@ int StudentWorld::getPeachY(){
     return m_player->getY();
 }
 
-
+void StudentWorld::finishLevel(){
+    m_player->finishLevel();
+}
 
 
 

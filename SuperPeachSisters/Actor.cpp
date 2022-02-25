@@ -76,6 +76,7 @@ Peach::Peach(int x, int y, StudentWorld* world): Actor(x, y, IID_PEACH, world, t
     star = false;
     shroom = false;
     tempIn = 0;
+    finishedLevel = false;
 }
 
 void Peach::bonk(){
@@ -216,11 +217,13 @@ void Goomba::bonk(){
         getWorld()->atPeach(getX() + SPRITE_WIDTH, getY() + SPRITE_HEIGHT/2, false) == true ||
         getWorld()->atPeach(getX(), getY() + SPRITE_HEIGHT/2, false) == true){
         if (getWorld()->getPeachStar() >0){
-        getWorld()->playSound(SOUND_PLAYER_KICK);
-        setStatus(false);
+            getWorld()->playSound(SOUND_PLAYER_KICK);
+            setStatus(false);
+            getWorld()->increaseScore(100);
         }
         return;
     }
+    getWorld()->increaseScore(100);
     setStatus(false);
 }
 
@@ -230,9 +233,75 @@ Goomba::~Goomba(){}
 
 
 
+Koopa::Koopa(int x, int y, StudentWorld *world, int startDirection): Actor(x, y, IID_KOOPA, world, true,startDirection,0,1,false){
+    bonked = false;
+}
+
+void Koopa::doSomething(){
+    if(getStatus() == false){
+        return;
+    }
+    if (getWorld()->atPeach(getX(), getY() + SPRITE_HEIGHT/2,true) == true ||
+        getWorld()->atPeach(getX() + SPRITE_WIDTH - 1, getY() + SPRITE_HEIGHT/2,true) == true){
+        if (getWorld()->getPeachStar()){
+            this->bonk();
+        }
+    }
+    if (getDirection() == 180){
+        if(getWorld()->Overlap(this->getX() - 1, this->getY() + SPRITE_HEIGHT/2,'l',false) == false &&
+           getWorld()->Overlap(this->getX() - 1 , this->getY() - 1 ,'l',false) == true){
+            this->moveTo(getX()- 1,getY());
+        }
+        else{
+            setDirection(0);
+        }
+    }
+    else if (getDirection() == 0){
+        if(getWorld()->Overlap(this->getX() + SPRITE_WIDTH + 1, this->getY() - 1,'r',false) == true &&
+           getWorld()->Overlap(this->getX() + SPRITE_WIDTH + 1, this->getY() + SPRITE_HEIGHT/2,'r',false) == false){
+            this->moveTo(getX() + 1,getY());
+        }
+        else{
+            setDirection(180);
+        }
+    }
+}
+
+void Koopa::bonk(){
+    
+    if (getWorld()->atPeach(getX() + SPRITE_WIDTH/2, getY() + SPRITE_HEIGHT/2, false) == true ||
+        getWorld()->atPeach(getX() + SPRITE_WIDTH, getY() + SPRITE_HEIGHT/2, false) == true ||
+        getWorld()->atPeach(getX(), getY() + SPRITE_HEIGHT/2, false) == true){
+        if (getWorld()->getPeachStar() >0 && bonked == false){
+            bonked = true;
+            getWorld()->playSound(SOUND_PLAYER_KICK);
+            setStatus(false);
+            getWorld()->increaseScore(100);
+            getWorld()->createObject(getX(), getY(), 'h', getDirection());
+        }
+        return;
+    }
+    if (bonked == false){
+        bonked = true;
+        setStatus(false);
+        getWorld()->increaseScore(100);
+        getWorld()->createObject(getX(), getY(), 'h', getDirection());
+    }
+    
+}
+
+Koopa::~Koopa(){}
+
+
+
+
+
+
 Piranha::Piranha(int x, int y, StudentWorld *world, int startDirection): Actor(x, y, IID_PIRANHA, world, true,startDirection,0,1,false){
     firingDelay = 0;
 }
+
+
 
 void Piranha::doSomething(){
     if(getStatus() == false){
@@ -245,7 +314,7 @@ void Piranha::doSomething(){
             this->bonk();
         }
     }
-    if (getWorld()->getPeachY() >= getY() && getWorld()->getPeachY() < getY()*SPRITE_HEIGHT*1.5){
+    if (getWorld()->getPeachY() >= getY() - SPRITE_HEIGHT * 1.5 && getWorld()->getPeachY() < getY() + SPRITE_HEIGHT*1.5 ){
         if (getWorld()->getPeachX() < getX()){
             setDirection(180);
         }
@@ -261,12 +330,12 @@ void Piranha::doSomething(){
             firingDelay = 40;
             if (getDirection() == 0 && getWorld()->getPeachX() < 8 * SPRITE_WIDTH + getX()){
                 getWorld()->playSound(SOUND_PIRANHA_FIRE);
-               getWorld()->createObject(getX()+SPRITE_WIDTH, getY(), 'p', getDirection());
-
+                getWorld()->createObject(getX()+SPRITE_WIDTH, getY(), 'p', getDirection());
+                
             }
             if (getDirection() == 180 && getWorld()->getPeachX() > getX() - 8 * SPRITE_WIDTH){
                 getWorld()->playSound(SOUND_PIRANHA_FIRE);
-               getWorld()->createObject(getX() - 1, getY(), 'p', getDirection());
+                getWorld()->createObject(getX() - 1, getY(), 'p', getDirection());
             }
             
         }
@@ -274,7 +343,7 @@ void Piranha::doSomething(){
     else{
         return;
     }
-
+    
 }
 
 
@@ -283,12 +352,16 @@ void Piranha::bonk(){
         getWorld()->atPeach(getX() + SPRITE_WIDTH, getY() + SPRITE_HEIGHT/2, false) == true ||
         getWorld()->atPeach(getX(), getY() + SPRITE_HEIGHT/2, false) == true){
         if (getWorld()->getPeachStar() >0){
-        getWorld()->playSound(SOUND_PLAYER_KICK);
-        setStatus(false);
+            getWorld()->playSound(SOUND_PLAYER_KICK);
+            setStatus(false);
+            getWorld()->increaseScore(100);
+
         }
         return;
     }
-    setStatus(false);;
+    getWorld()->increaseScore(100);
+    setStatus(false);
+
 }
 
 Piranha::~Piranha(){}
@@ -310,6 +383,8 @@ void Flower::doSomething(){
         getWorld()->updatePeach('f');
         setStatus(false);
         getWorld()->playSound(SOUND_PLAYER_POWERUP);
+        getWorld()->increaseScore(50);
+
         return;
     }
     if(getWorld()->Overlap(getX(), getY() - 1,'d',false) == false && getWorld()-> Overlap(getX() + SPRITE_WIDTH -1, getY() - 1,'d',false) == false ){
@@ -352,6 +427,8 @@ void Shroom::doSomething(){
         getWorld()->updatePeach('s');
         setStatus(false);
         getWorld()->playSound(SOUND_PLAYER_POWERUP);
+        getWorld()->increaseScore(75);
+
         return;
     }
     if(getWorld()->Overlap(getX(), getY() - 1,'d',false) == false && getWorld()-> Overlap(getX() + SPRITE_WIDTH -1, getY() - 1,'d',false) == false ){
@@ -395,6 +472,8 @@ void Star::doSomething(){
         getWorld()->updatePeach('i');
         setStatus(false);
         getWorld()->playSound(SOUND_PLAYER_POWERUP);
+        getWorld()->increaseScore(100);
+
         return;
     }
     if(getWorld()->Overlap(getX(), getY() - 1,'d',false) == false && getWorld()-> Overlap(getX() + SPRITE_WIDTH -1, getY() - 1,'d',false) == false ){
@@ -435,7 +514,7 @@ Star::~Star(){}
 pFireball::pFireball(int x, int y,int direction, StudentWorld* world):Actor(x, y, IID_PEACH_FIRE, world, true,direction,1,1,false){}
 
 void pFireball::doSomething(){
-
+    
     if(getWorld()->Overlap(getX(), getY() - 1,'d',false) == false && getWorld()-> Overlap(getX() + SPRITE_WIDTH -1, getY() - 1,'d',false) == false ){
         this->moveTo(getX(), getY() - 2);
     }
@@ -471,8 +550,39 @@ void piranhaFireball::doSomething(){
     if (getWorld()->atPeach(getX(), getY() + SPRITE_HEIGHT/2,true) == true ||
         getWorld()->atPeach(getX() + SPRITE_WIDTH - 1, getY() + SPRITE_HEIGHT/2,true) == true){
         setStatus(false);
-
+        
     }
+    if(getWorld()->Overlap(getX(), getY() - 1,'d',false) == false && getWorld()-> Overlap(getX() + SPRITE_WIDTH -1, getY() - 1,'d',false) == false ){
+        this->moveTo(getX(), getY() - 2);
+    }
+    if (getDirection() == 180){
+        if(getWorld()->Overlap(this->getX(), this->getY() + SPRITE_HEIGHT/2,'l',false) == false && getWorld()->Overlap(this->getX(), this->getY() + 1,'l',false) == false){
+            this->moveTo(getX()-2, getY());
+        }
+        else{
+            setStatus(false);
+        }
+    }
+    if (getDirection() == 0){
+        if(getWorld()->Overlap(this->getX() + SPRITE_WIDTH, this->getY() + SPRITE_HEIGHT/2,'r',false) == false && getWorld()->Overlap(this->getX() + SPRITE_WIDTH, this->getY() + 1,'r',false) == false){
+            this->moveTo(getX()+2, getY());
+        }
+        else{
+            setStatus(false);
+        }
+    }
+}
+
+piranhaFireball::~piranhaFireball(){}
+
+
+
+
+
+shell::shell(int x, int y,int direction, StudentWorld* world):Actor(x, y, IID_SHELL, world, true,direction,1,1,false){}
+
+void shell::doSomething(){
+    
     if(getWorld()->Overlap(getX(), getY() - 1,'d',false) == false && getWorld()-> Overlap(getX() + SPRITE_WIDTH -1, getY() - 1,'d',false) == false ){
         this->moveTo(getX(), getY() - 2);
     }
@@ -494,4 +604,37 @@ void piranhaFireball::doSomething(){
     }
 }
 
-piranhaFireball::~piranhaFireball(){}
+shell::~shell(){}
+
+
+
+
+
+Flag::Flag(int x, int y, StudentWorld* world):Actor(x, y, IID_FLAG, world, true,0,1,1,false){}
+
+void Flag::doSomething(){
+    if (getWorld()->atPeach(getX(), getY() + SPRITE_HEIGHT/2,false) == true ||
+        getWorld()->atPeach(getX() + SPRITE_WIDTH - 1, getY() + SPRITE_HEIGHT/2,false) == true){
+        getWorld()->finishLevel();
+        setStatus(false);
+        getWorld()->increaseScore(1000);
+
+        
+    }
+}
+
+Flag::~Flag(){}
+
+
+Mario::Mario(int x, int y, StudentWorld* world):Actor(x, y, IID_MARIO, world, true,0,1,1,false){}
+
+void Mario::doSomething(){
+    if (getWorld()->atPeach(getX(), getY() + SPRITE_HEIGHT/2,false) == true ||
+        getWorld()->atPeach(getX() + SPRITE_WIDTH - 1, getY() + SPRITE_HEIGHT/2,false) == true){
+        getWorld()->finishGame();
+        setStatus(false);
+        getWorld()->increaseScore(1000);
+    }
+}
+
+Mario::~Mario(){}

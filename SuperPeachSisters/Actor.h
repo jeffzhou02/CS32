@@ -59,6 +59,8 @@ public:
     int getInvicibleStatus(){return star;}
     void setHitpoints(int hp){hitPoints = hp;}
     int getHP(){return hitPoints;}
+    bool isComplete(){return finishedLevel;}
+    void finishLevel(){finishedLevel = true;}
     virtual void bonk();
     void damage(){return;}
 private:
@@ -69,6 +71,7 @@ private:
     bool shroom;
     int rechargeTime;
     int tempIn;
+    bool finishedLevel;
 };
 
 class Goomba: public Actor{
@@ -92,12 +95,35 @@ private:
     int firingDelay;
 };
 
+class Koopa: public Actor{
+public:
+    Koopa(int x, int y, StudentWorld* world, int startDirection);
+    virtual ~Koopa();
+    virtual void doSomething();
+    virtual void bonk();
+    void damage(){return;}
+private:
+    bool bonked;
+
+    
+};
+
 
 
 class Flag: public Actor{
 public:
-    Flag(int x, int y, StudentWorld* world, int startDirection);
+    Flag(int x, int y, StudentWorld* world);
     virtual ~Flag();
+    virtual void doSomething();
+    virtual void bonk(){return;}
+    void damage(){return;}
+private:
+};
+
+class Mario: public Actor{
+public:
+    Mario(int x, int y, StudentWorld* world);
+    virtual ~Mario();
     virtual void doSomething();
     virtual void bonk(){return;}
     void damage(){return;}
@@ -113,8 +139,8 @@ public:
     virtual void bonk(){return;}
     void damage(){return;}
 
-    
 };
+
 
 class Shroom: public Actor{
 public:
@@ -152,6 +178,15 @@ class piranhaFireball: public Actor{
 public:
     piranhaFireball(int x, int y, int direction,StudentWorld* world);
     virtual ~piranhaFireball();
+    virtual void doSomething();
+    virtual void bonk(){return;}
+    void damage(){return;}
+};
+
+class shell: public Actor{
+public:
+    shell(int x, int y, int direction,StudentWorld* world);
+    virtual ~shell();
     virtual void doSomething();
     virtual void bonk(){return;}
     void damage(){return;}
