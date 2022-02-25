@@ -31,6 +31,7 @@ public:
     int getPeachY();
     void finishLevel();
     void finishGame(){finishedGame = true;}
+    bool ObjectOverlap(int x, int y, char direction, Actor* itself);
 
 
 private:

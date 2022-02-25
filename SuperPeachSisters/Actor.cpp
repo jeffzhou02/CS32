@@ -27,7 +27,9 @@ Block::~Block(){}
 void Block::bonk(){ // fix block so bonk sound plays on goodie blocks too
     
     if (getWorld()->atPeach(getX() + SPRITE_WIDTH/2, getY() - 1, false) == true || getWorld()->atPeach(getX() + SPRITE_WIDTH, getY() - 1, false) == true ||
-        getWorld()->atPeach(getX(), getY() - 1, false) == true){
+        getWorld()->atPeach(getX(), getY() - 1, false) == true ||
+        getWorld()->atPeach(getX() - 1, getY() + SPRITE_HEIGHT/2, false) == true ||
+        getWorld()->atPeach(getX() + SPRITE_WIDTH - 1, getY() + SPRITE_HEIGHT/2, false) == true){
         
         if (m_goodie == 'n'){
             getWorld()->playSound(SOUND_PLAYER_BONK);
@@ -509,7 +511,6 @@ Star::~Star(){}
 
 
 
-// fix fireball so it disappears when something disappears
 
 pFireball::pFireball(int x, int y,int direction, StudentWorld* world):Actor(x, y, IID_PEACH_FIRE, world, true,direction,1,1,false){}
 
@@ -519,7 +520,7 @@ void pFireball::doSomething(){
         this->moveTo(getX(), getY() - 2);
     }
     if (getDirection() == 180){
-        if(getWorld()->Overlap(this->getX(), this->getY() + SPRITE_HEIGHT/2,'l',true) == false && getWorld()->Overlap(this->getX(), this->getY() + 1,'l',true) == false){
+        if(getWorld()->ObjectOverlap(this->getX(), this->getY() + SPRITE_HEIGHT/2,'l',this) == false && getWorld()->ObjectOverlap(this->getX(), this->getY() + 1,'l',this) == false){
             this->moveTo(getX()-2, getY());
         }
         else{
@@ -527,7 +528,7 @@ void pFireball::doSomething(){
         }
     }
     if (getDirection() == 0){
-        if(getWorld()->Overlap(this->getX() + SPRITE_WIDTH, this->getY() + SPRITE_HEIGHT/2,'r',true) == false && getWorld()->Overlap(this->getX() + SPRITE_WIDTH, this->getY() + 1,'r',true) == false){
+        if(getWorld()->ObjectOverlap(this->getX() + SPRITE_WIDTH, this->getY() + SPRITE_HEIGHT/2,'r',this) == false && getWorld()->ObjectOverlap(this->getX() + SPRITE_WIDTH, this->getY() + 1,'r',this) == false){
             this->moveTo(getX()+2, getY());
         }
         else{

@@ -258,6 +258,37 @@ bool StudentWorld::Overlap(int x,int y, char direction, bool isBonk){
 
 
 
+bool StudentWorld::ObjectOverlap(int x,int y, char direction, Actor* itself){
+    list<Actor*>::iterator it;
+    it = characters.begin();
+    switch(direction){
+        case 'l':{
+            while(it != characters.end()){
+                if (x <= (*it)->getX() + SPRITE_WIDTH && x >= (*it)->getX() &&  y <= (*it)->getY() + SPRITE_HEIGHT  &&  y >= (*it)->getY() && itself != (*it)){
+                    (*it)->bonk();
+                    return true;
+                }
+                it++;
+            }
+            break;
+        }
+        case 'r':{
+            while(it != characters.end()){
+                if (x >= (*it)->getX() && x <= (*it)->getX() +SPRITE_WIDTH  && y <= (*it)->getY() + SPRITE_HEIGHT  && y >= (*it)->getY() && itself != (*it)) {
+                    (*it)->bonk();
+                    return true;
+                }
+                it++;
+            }
+            break;
+        }
+    }
+    return false;
+}
+
+
+
+
 
 
 
